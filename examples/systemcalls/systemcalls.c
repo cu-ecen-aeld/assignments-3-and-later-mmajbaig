@@ -1,4 +1,12 @@
 #include "systemcalls.h"
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/wait.h>
+#include <stdio.h>
+#include <fcntl.h>
 
 /**
  * @param cmd the command to execute with system()
@@ -16,7 +24,11 @@ bool do_system(const char *cmd)
  *   and return a boolean true if the system() call completed with success
  *   or false() if it returned a failure
 */
-
+	if (cmd == NULL || system(cmd) != 0)
+	{
+		return false;
+	}
+	
     return true;
 }
 
@@ -48,6 +60,7 @@ bool do_exec(int count, ...)
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
     command[count] = command[count];
+    va_end(args);
 
 /*
  * TODO:
@@ -58,8 +71,49 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
+	fflush(stdout);
+	pid_t pid = fork();
+	int status; 
+	
+	if( pid < 0)
+	{
+		fprintf(stderr, "Error! Failed to created child process: %s", strerror(errno));
+		return false;		
+	}
+	else if(pid == 0)	// Child process
+	{
+		int ret = execv(command[0], command);
+		if( ret == -1)
+		{
+			fprintf(stderr, "execv failed: %s\n", strerror(errno));
+			abort();
+		}
+	}
+	else
+	{
+		int ret = wait(&status);
+		
+		if(ret != -1)
+		{
+			if(WIFEXITED(status))
+			{
+				if (WEXITSTATUS(status) != 0) 
+				{			
+					return false;
+				}
+			}
+			else
+				return false;
+		}
+		else
+		{
+			fprintf(stderr, "wait failed: %s\n", strerror(errno));
+			return false;
+		}
+			
+	}
 
-    va_end(args);
+    
 
     return true;
 }
@@ -83,7 +137,7 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
     command[count] = command[count];
-
+	va_end(args);
 
 /*
  * TODO
@@ -93,7 +147,60 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *
 */
 
-    va_end(args);
+	int fd = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT, 0644);
+	if (fd < 0) 
+	{ 
+		perror("open"); 
+		return false; 
+	}
+	fflush(stdout);
+	pid_t pid = fork();
+	int status; 
+	
+	if( pid < 0)
+	{
+		fprintf(stderr, "Error! Failed to created child process: %s", strerror(errno));
+		return false;		
+	}
+	else if(pid == 0)	// Child process
+	{
+		if (dup2(fd, 1) < 0) 
+		{ 
+			perror("dup2"); 
+			return false; 
+		}
+		close(fd);
+		int ret = execv(command[0], command);
+		if( ret == -1)
+		{
+			fprintf(stderr, "execv failed: %s\n", strerror(errno));
+			abort();
+		}
+	}
+	else
+	{
+		close(fd);
+		int ret = wait(&status);
+		
+		if(ret != -1)
+		{
+			if(WIFEXITED(status))
+			{
+				if (WEXITSTATUS(status) != 0) 
+				{			
+					return false;
+				}
+			}
+			else
+				return false;
+		}
+		else
+		{
+			fprintf(stderr, "wait failed: %s\n", strerror(errno));
+			return false;
+		}
+			
+	}
 
     return true;
 }
