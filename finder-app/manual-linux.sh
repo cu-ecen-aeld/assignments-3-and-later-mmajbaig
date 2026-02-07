@@ -12,7 +12,7 @@ BUSYBOX_VERSION=1_33_1
 FINDER_APP_DIR=$(realpath $(dirname $0))
 ARCH=arm64
 CROSS_COMPILE=aarch64-none-linux-gnu-
-TOOLCHAIN_PATH=/home/ahsan/linux_course/arm-gnu-toolchain-13.3.rel1-x86_64-aarch64-none-linux-gnu/
+LIB_PATH=${FINDER_APP_DIR}/libs
 
 if [ $# -lt 1 ]
 then
@@ -86,10 +86,10 @@ ${CROSS_COMPILE}readelf -a bin/busybox | grep "Shared library"
 
 # TODO: Add library dependencies to rootfs
 
-cp ${TOOLCHAIN_PATH}/aarch64-none-linux-gnu/libc/lib/ld-linux-aarch64.so.1 ${OUTDIR}/rootfs/lib
-cp ${TOOLCHAIN_PATH}/aarch64-none-linux-gnu/libc/lib64/libm.so.6 ${OUTDIR}/rootfs/lib64
-cp ${TOOLCHAIN_PATH}/aarch64-none-linux-gnu/libc/lib64/libresolv.so.2 ${OUTDIR}/rootfs/lib64
-cp ${TOOLCHAIN_PATH}/aarch64-none-linux-gnu/libc/lib64/libc.so.6 ${OUTDIR}/rootfs/lib64
+cp ${LIB_PATH}/ld-linux-aarch64.so.1 ${OUTDIR}/rootfs/lib
+cp ${LIB_PATH}/libm.so.6 ${OUTDIR}/rootfs/lib64
+cp ${LIB_PATH}/libresolv.so.2 ${OUTDIR}/rootfs/lib64
+cp ${LIB_PATH}/libc.so.6 ${OUTDIR}/rootfs/lib64
 
 # TODO: Make device nodes
 sudo mknod -m 666 dev/null c 1 3
