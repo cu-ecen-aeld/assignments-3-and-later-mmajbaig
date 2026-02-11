@@ -85,7 +85,7 @@ ${CROSS_COMPILE}readelf -a bin/busybox | grep "program interpreter"
 ${CROSS_COMPILE}readelf -a bin/busybox | grep "Shared library"
 
 # TODO: Add library dependencies to rootfs
-
+# Should've used (aarch64-none-linux-gnu-gcc -print-sysroot) to get compiler toolchain libc path
 cp ${LIB_PATH}/ld-linux-aarch64.so.1 ${OUTDIR}/rootfs/lib
 cp ${LIB_PATH}/libm.so.6 ${OUTDIR}/rootfs/lib64
 cp ${LIB_PATH}/libresolv.so.2 ${OUTDIR}/rootfs/lib64
