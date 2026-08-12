@@ -1,6 +1,7 @@
 # Makefile for aesdsocket application
 
-CC := $(CROSS_COMPILE)gcc
+CC ?= $(CROSS_COMPILE)gcc
+CFLAGS ?=
 CFLAGS += -Wall -Werror
 
 # Source files
@@ -17,7 +18,7 @@ $(TARGET): $(OBJ)
 	$(CC) -o $(TARGET) $(OBJ)
 
 $(OBJ): $(SRC)
-	$(CC) $(CFLAGS) -o $(OBJ) -c $(SRC)
+	$(CC) $(CFLAGS) -c $(SRC) -o $(OBJ) 
 
 # Clean target
 clean:
