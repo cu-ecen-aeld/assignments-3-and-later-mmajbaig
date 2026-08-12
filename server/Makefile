@@ -15,7 +15,7 @@ default: $(TARGET)
 
 # Link object files into the final executable
 $(TARGET): $(OBJ)
-	$(CC) -o $(TARGET) $(OBJ)
+	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJ)
 
 $(OBJ): $(SRC)
 	$(CC) $(CFLAGS) -c $(SRC) -o $(OBJ) 
